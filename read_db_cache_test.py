@@ -5,9 +5,7 @@ import logging
 logging.basicConfig(level=logging.DEBUG, format='%(relativeCreated)6d %(threadName)s %(message)s')
 import datetime
 
-import mysql.connector
-from mysql.connector import errorcode
-
+from pymysqlreplication.tests import base
 
 from pymysqlreplication.row_event import (
     # DeleteRowsEvent,
@@ -21,17 +19,20 @@ MYSQL_SETTINGS = {
     "user": "root",
     "passwd": "123456"
 }
+def convert_to_second_int(datetimein):
+    return time.mktime(datetimein.timetuple()) #(datetimein-datetime.datetime(1970,1,1)).total_seconds()
 
 class DB_fetcher(multiprocessing.Process):
     def __init__(self, share_image_queue, MYSQL_SETTINGS ,target_schema = "capstone",
                  target_table = "new_table", last_read_id = 0,
-                 skip_to_timestamp = datetime.datetime(1900,1,1,0,0,0)):
+                 start_time = datetime.datetime(1970,1,2,0,1,0)): # 1970,1,1 is almost 0 second
         multiprocessing.Process.__init__(self)
         self.share_image_queue = share_image_queue
         self.target_schema = target_schema
         self.target_table = target_table
         self.last_read_id = last_read_id
-        self.idx = 0
+        # self.idx = 0
+        self.skip_to_timestamp = convert_to_second_int(start_time)
 
     def run(self):
         while True:
@@ -39,29 +40,25 @@ class DB_fetcher(multiprocessing.Process):
                 connection_settings=MYSQL_SETTINGS,
                 only_events=[WriteRowsEvent],  # [DeleteRowsEvent, WriteRowsEvent, UpdateRowsEvent],
                 server_id=3,
-                slave_heartbeat=1)
+                slave_heartbeat=1
+                ,skip_to_timestamp = self.skip_to_timestamp)
 
-            self.idx = 0
-            self.show_slave_status()
+            # self.idx = 0
+            # self.show_slave_status()
             for binlogevent in self.stream:
-                # print(">>> binlogevent {}".format(binlogevent))
-                if (self.idx < self.last_read_id):
-                    pass
-                else:
-                    prefix = "%s:%s:" % (binlogevent.schema, binlogevent.table)
-                    if prefix == self.target_schema + ":" + self.target_table + ":":
-                        # print(binlogevent.rows)
-                        for new_update_row in binlogevent.rows:
-                            logging.info(" >>> find new row {}".format(new_update_row))
-                            # format for a row: {'values':
-                            #       {'map_id': 1, 'timestamp': datetime.datetime(2008, 6, 19, 0, 0),
-                            #       'image_location': 'RANDOM_LL', 'crack_detect': None, 'result_locatoin': None}}
-                            if new_update_row["values"]["crack_detect"] is None:
-                                self.share_image_queue.put(new_update_row["values"])
-                                logging.info(" >>> adding 1 image to queue")
-                    self.last_read_id += 1
-                self.idx += 1
-            time.sleep(3)
+                prefix = "%s:%s:" % (binlogevent.schema, binlogevent.table)
+                if prefix == self.target_schema + ":" + self.target_table + ":":
+                    # print(binlogevent.rows)
+                    for new_update_row in binlogevent.rows:
+                        logging.info(" >>> find new row {}".format(new_update_row))
+                        # format for a row: {'values':
+                        #       {'map_id': 1, 'timestamp': datetime.datetime(2008, 6, 19, 0, 0),
+                        #       'image_location': 'RANDOM_LL', 'crack_detect': None, 'result_locatoin': None}}
+                        if new_update_row["values"]["crack_detect"] is None:
+                            self.share_image_queue.put(new_update_row["values"])
+                            logging.info(" >>> adding 1 image to queue")
+            self.skip_to_timestamp = convert_to_second_int(datetime.datetime.now())
+            time.sleep(5)
 
     def close_stream(self):
         self.stream.close()
@@ -97,6 +94,52 @@ class DB_fetcher(multiprocessing.Process):
 #                 last_read_id += 1
 #         time.sleep(1)
 #     stream.close()
+
+
+#
+# class DB_fetcher( base.PyMySQLReplicationTestCase ):
+#     def __init__(self, share_image_queue, MYSQL_SETTINGS ,target_schema = "capstone",
+#                  target_table = "new_table", last_read_id = 0,
+#                  skip_to_timestamp = datetime.datetime(1900,1,1,0,0,0)):
+#         # multiprocessing.Process.__init__(self)
+#         self.share_image_queue = share_image_queue
+#         self.target_schema = target_schema
+#         self.target_table = target_table
+#         self.last_read_id = last_read_id
+#         # self.idx = 0
+#
+#         timestamp = self.execute('SELECT UNIX_TIMESTAMP()').fetchone()[0]
+#         self.skip_to_timestamp = skip_to_timestamp.strftime('%Y-%m-%d %H:%M:%S')
+    #
+    # def run(self):
+    #     while True:
+    #         self.stream = BinLogStreamReader(
+    #             connection_settings=MYSQL_SETTINGS,
+    #             only_events=[WriteRowsEvent],  # [DeleteRowsEvent, WriteRowsEvent, UpdateRowsEvent],
+    #             server_id=3,
+    #             slave_heartbeat=1
+    #             ,
+    #             skip_to_timestamp = self.skip_to_timestamp)
+    #
+    #         # self.idx = 0
+    #         # self.show_slave_status()
+    #         for binlogevent in self.stream:
+    #             prefix = "%s:%s:" % (binlogevent.schema, binlogevent.table)
+    #             if prefix == self.target_schema + ":" + self.target_table + ":":
+    #                 # print(binlogevent.rows)
+    #                 for new_update_row in binlogevent.rows:
+    #                     logging.info(" >>> find new row {}".format(new_update_row))
+    #                     # format for a row: {'values':
+    #                     #       {'map_id': 1, 'timestamp': datetime.datetime(2008, 6, 19, 0, 0),
+    #                     #       'image_location': 'RANDOM_LL', 'crack_detect': None, 'result_locatoin': None}}
+    #                     if new_update_row["values"]["crack_detect"] is None:
+    #                         self.share_image_queue.put(new_update_row["values"])
+    #                         logging.info(" >>> adding 1 image to queue")
+    #         self.skip_to_timestamp = datetime.datetime.now().time()
+    #         time.sleep(3)
+    #
+    # def close_stream(self):
+    #     self.stream.close()
 
 if __name__ == "__main__":
     images_details = multiprocessing.Queue()
