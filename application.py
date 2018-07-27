@@ -16,12 +16,12 @@ from utils import split_video_to_frames, \
     generate_result_folder_for_pickle, \
     unpack_to_dict
 
-app = Flask(__name__)
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-# app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://flask:p2s5w0rD@flasktest.cfparnusqsew.us-west-2.rds.amazonaws.com/aeolusdb'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:123456@localhost/capstone'
-db.app = app
-db.init_app(app)
+application = app = Flask(__name__)
+application.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+application.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://flask:p2s5w0rD@flasktest.cfparnusqsew.us-west-2.rds.amazonaws.com/aeolusdb'
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:123456@localhost/capstone'
+db.app = application
+db.init_app(application)
 import os
 from models import User,video_file_id_mapping, crack_detection_result, video_processed_frame_info
 
@@ -74,12 +74,12 @@ def requires_auth(f):
         return f(*args, **kwargs)
     return decorated
 
-@app.route("/", methods=['POST'])
+@application.route("/", methods=['POST'])
 @requires_auth
 def main_auth():
     return "Hello World!", status.HTTP_200_OK
 
-@app.route("/video", methods=['POST'])
+@application.route("/video", methods=['POST'])
 @requires_auth
 def video_upload():
     if 'video' in request.files:
@@ -118,7 +118,7 @@ def video_upload():
     else:
         return "", status.HTTP_400_BAD_REQUEST
 
-@app.route("/video/<string:vid_name>/frames", methods=['GET'])
+@application.route("/video/<string:vid_name>/frames", methods=['GET'])
 @requires_auth
 def video_frame_status_get(vid_name):
     # check if video in db
@@ -132,7 +132,7 @@ def video_frame_status_get(vid_name):
     else:
         return "", status.HTTP_400_BAD_REQUEST
 
-@app.route("/video/<string:vid_name>/frames/<int:frame_index>", methods=['GET'])
+@application.route("/video/<string:vid_name>/frames/<int:frame_index>", methods=['GET'])
 @requires_auth
 def video_frame_get(vid_name, frame_index):
     # check if video in db
@@ -156,7 +156,7 @@ def video_frame_get(vid_name, frame_index):
     else:
         return "", status.HTTP_400_BAD_REQUEST
 
-@app.route("/test", methods=['GET'])
+@application.route("/test", methods=['GET'])
 @requires_auth
 def test_video_get():
     print("============HELLO WORLD the test page")
@@ -170,7 +170,7 @@ def test_video_get():
     # video_plain_framelist_to_db(video_id, frame_list)
     return render_template("home.html"), status.HTTP_200_OK
 
-@app.route("/test", methods=['POST'])
+@application.route("/test", methods=['POST'])
 @requires_auth
 def test_video():
     # video = "F:\\capstone\\data\\videos\\input\\File_002.mov"
@@ -210,4 +210,4 @@ def test_video():
 
 if __name__ == "__main__":
     # app.run(host= '0.0.0.0', debug=True)
-    app.run(debug=True)
+    application.run(debug=True)
