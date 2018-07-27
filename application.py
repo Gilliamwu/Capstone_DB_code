@@ -18,8 +18,8 @@ from utils import split_video_to_frames, \
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://flask:p2s5w0rD@flasktest.cfparnusqsew.us-west-2.rds.amazonaws.com/aeolusdb'
-
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://flask:p2s5w0rD@flasktest.cfparnusqsew.us-west-2.rds.amazonaws.com/aeolusdb'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:123456@localhost/capstone'
 db.app = app
 db.init_app(app)
 import os
