@@ -48,13 +48,17 @@ class DB_fetcher(multiprocessing.Process):
                         # format for a row: {'values':
                         #       {'video_id': 1, 'frame_id': 4, 'insert_time': datetime.datetime(2008, 6, 19, 0, 0),
                         #       'frame_loc': 'RANDOM_LL', 'detect_flag': boolean, 'result_loc': None}}
-                        if new_update_row["values"]["detect_flag"] == 0 and  new_update_row["values"]['insert_time'] is not None:
+                        if new_update_row["values"]["detect_flag"] == 0 and  \
+                                (new_update_row["values"]['insert_time'] is not None or new_update_row["values"]['insert_time'] != '' ):
                             # TODO: maybe edit here
                             #logging.info(" >>> for this row, the flag is {}".format(new_update_row['detect_flag']))
-                            self.share_image_queue.put(new_update_row["values"])
-                            logging.info(" >>> adding 1 image to queue {}".format(new_update_row))
+                            try:
+                                self.share_image_queue.put(new_update_row["values"],True,1)
+                                logging.info(" >>> adding 1 image to queue {}".format(new_update_row))
+                            except Exception as e:
+                                logging.error(e)
             self.skip_to_timestamp = convert_to_second_int(datetime.datetime.now())
-            time.sleep(6)
+            time.sleep(2)
 
     def close_stream(self):
         self.stream.close()

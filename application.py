@@ -3,6 +3,7 @@ from flask_api import status
 from functools import wraps
 from models import db
 
+
 import logging
 logging.basicConfig(level=logging.DEBUG, format='%(relativeCreated)6d %(threadName)s %(message)s')
 
@@ -13,13 +14,16 @@ from utils import split_video_to_frames, \
     generate_result_folder_for_frames,\
     insert_pain_video_processed_frame_info,\
     update_video_processed_frame_info_total_frames,\
-    generate_result_folder_for_pickle, \
+    db_check_if_vid_exist
+
+from utils_non_flask import generate_result_folder_for_pickle, \
+    pickle_read_file_direct, \
     unpack_to_dict
 
 application = app = Flask(__name__)
 application.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-application.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://flask:p2s5w0rD@flasktest.cfparnusqsew.us-west-2.rds.amazonaws.com/aeolusdb'
-# app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:123456@localhost/capstone'
+# application.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://flask:p2s5w0rD@flasktest.cfparnusqsew.us-west-2.rds.amazonaws.com/aeolusdb'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:123456@localhost/capstone'
 db.app = application
 db.init_app(application)
 import os
@@ -85,26 +89,31 @@ def video_upload():
     if 'video' in request.files:
         submitted_file = request.files['video']
         # your save code goes here
-        submitted_file.save("test1.avi")
-        video_loc = 'test1'
-        # end of save code
-        # uid = 'asdf12345'
-        # n_frames = 200
+
+        video_id = table_total_count(video_file_id_mapping)+1
+        output_video_name = "test{}".format(video_id)
+        output_video_ext = ".avi"
+        video_loc = "received_video\\"+output_video_name+output_video_ext
+        submitted_file.save(video_loc)
 
         video = video_file_id_mapping(video_location=video_loc)
         db.session.add(video)
         video_id = table_total_count(video_file_id_mapping)
         print("  > received : {}\n > it's video id should be {}".format(video_loc, video_id))
+
         update_video_file_id_mapping(video_loc, video_id)
         db.session.commit()
         logging.info("  >>> given video saved to db: {}".format(video))
         frame_extract_location_current_video = generate_result_folder_for_frames(video_id)
+        # just to create a pickle folder
+        generate_result_folder_for_pickle(video_id)
+
         frame_list, frame_length = split_video_to_frames(frame_extract_location_current_video,
                                             os.getcwd(), video_loc, ".avi")
         print("  >>> frames extracted.")
         # save frames to db
         video_plain_framelist_to_db(video_id, frame_list)
-        print("video id {}and frame listi is {}".format(video_id, frame_list))
+        print("video id {}and frame list is {}".format(video_id, frame_list))
         print("  >>> save frames to db already")
         # save number to db
         insert_pain_video_processed_frame_info(video_id, frame_length)
@@ -122,39 +131,46 @@ def video_upload():
 @requires_auth
 def video_frame_status_get(vid_name):
     # check if video in db
-    if True:
-        n_frames = 200
-        completed_frames = 6 #[1, 2, 3]
+    flag, reason_or_processed_name = db_check_if_vid_exist(vid_name)
+    if flag:
+        target_v_info = video_processed_frame_info.query.filter_by(video_id = reason_or_processed_name).first()
+        n_frames = target_v_info.total_frames
+        completed_frames = target_v_info.processed_frames_n
+        # n_frames = 200
+        # completed_frames = 6 #[1, 2, 3]
         data = {'frames': n_frames, 'completed_frames': completed_frames}
+        print(" YYYYYYYYY frame data: {}".format(data))
         resp = jsonify(data)
         resp.status_code = 200
         return resp
-    else:
-        return "", status.HTTP_400_BAD_REQUEST
+    return reason_or_processed_name, status.HTTP_400_BAD_REQUEST
 
 @application.route("/video/<string:vid_name>/frames/<int:frame_index>", methods=['GET'])
 @requires_auth
 def video_frame_get(vid_name, frame_index):
+    flag, reason_or_processed_name = db_check_if_vid_exist(vid_name)
+    if flag:
     # check if video in db
-    if True:
         # check if frame processed
-        if True:
-            lst_of_tup = []
+        target_frame_row = crack_detection_result.query.filter_by(video_id=reason_or_processed_name, frame_id = frame_index).first()
+        if target_frame_row.detect_flag == 1:
+            lst_of_tup = pickle_read_file_direct(target_frame_row.result_loc)
 
             boxes = [unpack_to_dict(t) for t in lst_of_tup]
 
-            box1 = {'x': 0, 'y': 0, 'w': 1, 'h': 1, 'p': 0.49}
-            box2 = {'x': 0, 'y': 0, 'w': 1, 'h': 1, 'p': 0.49}
-            boxes = [box1, box2]
+            # box1 = {'x': 0, 'y': 0, 'w': 1, 'h': 1, 'p': 0.49}
+            # box2 = {'x': 0, 'y': 0, 'w': 1, 'h': 1, 'p': 0.49}
+            # boxes = [box1, box2]
             data = {'boxes': boxes}
             resp = jsonify(data)
             resp.status_code = 200
+            print("  YYYY get data: {}".format(data))
             return resp
         # frame not yet processed
         else:
-            return "", status.HTTP_204_NO_CONTENT
+            return "Frame not processed yet", status.HTTP_204_NO_CONTENT
     else:
-        return "", status.HTTP_400_BAD_REQUEST
+        return reason_or_processed_name, status.HTTP_400_BAD_REQUEST
 
 @application.route("/test", methods=['GET'])
 @requires_auth
@@ -177,6 +193,7 @@ def test_video():
     print("============receive post frmo test page")
     if request.form:
         video_loc = request.form.get("video_loc")
+
         video = video_file_id_mapping(video_location=video_loc)
         db.session.add(video)
         video_id = table_total_count(video_file_id_mapping)
@@ -185,7 +202,6 @@ def test_video():
         db.session.commit()
         logging.info("  >>> given video saved to db: {}".format(video))
         video = "F:\\capstone\\data\\videos\\input\\File_002.mov"
-
 
         #extract frames
         frame_extract_location_current_video = generate_result_folder_for_frames(video_id)
@@ -209,5 +225,5 @@ def test_video():
     # return "Hello World!"
 
 if __name__ == "__main__":
-    app.run(host= '0.0.0.0', debug=True)
-    # application.run(debug=True)
+    # app.run(host= '0.0.0.0', debug=True)
+    application.run(debug=True)
