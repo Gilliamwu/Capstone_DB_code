@@ -36,88 +36,88 @@ if __name__ == "__main__":
     application.run()
 
 
-#
-# import logging
-# logging.basicConfig(level=logging.DEBUG, format='%(relativeCreated)6d %(threadName)s %(message)s')
-#
-# from utils import split_video_to_frames, \
-#     table_total_count, \
-#     update_video_file_id_mapping, \
-#     video_plain_framelist_to_db, \
-#     generate_result_folder_for_frames,\
-#     insert_pain_video_processed_frame_info,\
-#     update_video_processed_frame_info_total_frames,\
-#     db_check_if_vid_exist
-#
-# from utils_non_flask import generate_result_folder_for_pickle, \
-#     pickle_read_file_direct, \
-#     unpack_to_dict
-#
-# application = app = Flask(__name__)
-# application.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-# application.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://flask:p2s5w0rD@flasktest.cfparnusqsew.us-west-2.rds.amazonaws.com/aeolusdb'
-# # app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:123456@localhost/capstone'
-# db.app = application
-# db.init_app(application)
-# import os
-# from models import User,video_file_id_mapping, crack_detection_result, video_processed_frame_info
-#
-#
-# # TODO: later rmv--- not really used, for testing only
-# from flask import render_template
-# from flask import request
-#
-# first_time = False
-# if first_time:
-#     admin = User('admin1', 'admin1@example.com')
-#     db.create_all()
-#     print(" >> first time: all tables created")
-#     # db.session.add(admin)
-#     db.session.commit()
-#     User.query.all()
-#     print(" >> first time: test insert value, success")
-#
-# ###################################################################
-# ###################################################################
-#
-# users = {
-#     "a":"b",
-#     "Admin1": "admin_password",
-#     "User1": "password1"
-#     }
-#
-# def is_valid_user(username, password):
-#     return username in users and users[username] == password
-#
-# def ask_for_login(has_auth):
-#     '''
-#     Checks for login
-#     '''
-#     if not has_auth:
-#         message = {'message': "Login Required"}
-#     else:
-#         message = {'message': "Invalid Credentials"}
-#
-#     resp = jsonify(message)
-#     resp.status_code = 401
-#     resp.headers['WWW-Authenticate'] = 'Basic realm="AEOLUS Login"'
-#     return resp
-#
-# def requires_auth(f):
-#     @wraps(f)
-#     def decorated(*args, **kwargs):
-#         auth = request.authorization
-#         if not auth:
-#             return ask_for_login(False)
-#         elif not is_valid_user(auth.username, auth.password):
-#             return ask_for_login(True)
-#         return f(*args, **kwargs)
-#     return decorated
-#
-# @application.route("/", methods=['POST'])
-# @requires_auth
-# def main_auth():
-#     return "Hello World!", status.HTTP_200_OK
+
+import logging
+logging.basicConfig(level=logging.DEBUG, format='%(relativeCreated)6d %(threadName)s %(message)s')
+
+from utils import split_video_to_frames, \
+    table_total_count, \
+    update_video_file_id_mapping, \
+    video_plain_framelist_to_db, \
+    generate_result_folder_for_frames,\
+    insert_pain_video_processed_frame_info,\
+    update_video_processed_frame_info_total_frames,\
+    db_check_if_vid_exist
+
+from utils_non_flask import generate_result_folder_for_pickle, \
+    pickle_read_file_direct, \
+    unpack_to_dict
+
+application = app = Flask(__name__)
+application.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+application.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://flask:p2s5w0rD@flasktest.cfparnusqsew.us-west-2.rds.amazonaws.com/aeolusdb'
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:123456@localhost/capstone'
+db.app = application
+db.init_app(application)
+import os
+from models import User,video_file_id_mapping, crack_detection_result, video_processed_frame_info
+
+
+# TODO: later rmv--- not really used, for testing only
+from flask import render_template
+from flask import request
+
+first_time = False
+if first_time:
+    admin = User('admin1', 'admin1@example.com')
+    db.create_all()
+    print(" >> first time: all tables created")
+    # db.session.add(admin)
+    db.session.commit()
+    User.query.all()
+    print(" >> first time: test insert value, success")
+
+###################################################################
+###################################################################
+
+users = {
+    "a":"b",
+    "Admin1": "admin_password",
+    "User1": "password1"
+    }
+
+def is_valid_user(username, password):
+    return username in users and users[username] == password
+
+def ask_for_login(has_auth):
+    '''
+    Checks for login
+    '''
+    if not has_auth:
+        message = {'message': "Login Required"}
+    else:
+        message = {'message': "Invalid Credentials"}
+
+    resp = jsonify(message)
+    resp.status_code = 401
+    resp.headers['WWW-Authenticate'] = 'Basic realm="AEOLUS Login"'
+    return resp
+
+def requires_auth(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        auth = request.authorization
+        if not auth:
+            return ask_for_login(False)
+        elif not is_valid_user(auth.username, auth.password):
+            return ask_for_login(True)
+        return f(*args, **kwargs)
+    return decorated
+
+@application.route("/", methods=['POST'])
+@requires_auth
+def main_auth():
+    return "Hello World!", status.HTTP_200_OK
 #
 # @application.route("/video", methods=['POST'])
 # @requires_auth
@@ -259,7 +259,8 @@ if __name__ == "__main__":
 #     # TODO: upload video, slice to frames and update the db
 #     return render_template("home.html"), status.HTTP_200_OK
 #     # return "Hello World!"
-#
-# if __name__ == "__main__":
-#     # app.run(host= '0.0.0.0', debug=True)
-#     application.run(debug=True)
+
+if __name__ == "__main__":
+    # app.run(host= '0.0.0.0', debug=True)
+    application.debug = True
+    application.run()

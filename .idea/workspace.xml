@@ -16,7 +16,7 @@
   </component>
   <component name="ExecutionTargetManager" SELECTED_TARGET="default_target" />
   <component name="FileEditorManager">
-    <splitter split-orientation="horizontal" split-proportion="0.61481935">
+    <splitter split-orientation="horizontal" split-proportion="0.5003062">
       <split-first>
         <leaf SIDE_TABS_SIZE_LIMIT_KEY="375">
           <file leaf-file-name="main.py" pinned="false" current-in-tab="false">
@@ -46,11 +46,12 @@
           <file leaf-file-name="application.py" pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/application.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="75">
-                  <caret line="3" column="21" lean-forward="true" selection-start-line="3" selection-start-column="21" selection-end-line="3" selection-end-column="21" />
+                <state relative-caret-position="255">
+                  <caret line="264" column="28" lean-forward="true" selection-start-line="264" selection-start-column="28" selection-end-line="264" selection-end-column="28" />
                   <folding>
                     <element signature="e#0#41#0" expanded="true" />
-                    <element signature="e#1244#1245#0" expanded="false" />
+                    <element signature="e#249#319#0" expanded="false" />
+                    <element signature="e#335#511#0" expanded="false" />
                   </folding>
                 </state>
               </provider>
@@ -83,6 +84,19 @@
       </split-first>
       <split-second>
         <leaf SIDE_TABS_SIZE_LIMIT_KEY="375">
+          <file leaf-file-name="application.py" pinned="false" current-in-tab="true">
+            <entry file="file://$PROJECT_DIR$/application.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="6350">
+                  <caret line="265" column="20" lean-forward="false" selection-start-line="265" selection-start-column="20" selection-end-line="265" selection-end-column="20" />
+                  <folding>
+                    <element signature="e#0#41#0" expanded="true" />
+                    <element signature="e#249#319#0" expanded="false" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
           <file leaf-file-name="utils_non_flask.py" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/utils_non_flask.py">
               <provider selected="true" editor-type-id="text-editor">
@@ -105,7 +119,7 @@
               </provider>
             </entry>
           </file>
-          <file leaf-file-name="yolo_running.py" pinned="false" current-in-tab="true">
+          <file leaf-file-name="yolo_running.py" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/yolo_running.py">
               <provider selected="true" editor-type-id="text-editor">
                 <state relative-caret-position="456">
@@ -142,7 +156,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>Image_processor</find>
       <find>wtf</find>
       <find>updating</find>
       <find>request</find>
@@ -172,6 +185,7 @@
       <find>filter_by</find>
       <find>video_processed_frame_info</find>
       <find>print</find>
+      <find>table</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -539,7 +553,7 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="-9" y="-9" width="1938" height="1048" extended-state="7" />
+    <frame x="-9" y="-9" width="1938" height="1048" extended-state="6" />
     <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.13643575" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
@@ -850,6 +864,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="165">
           <caret line="2294" column="0" lean-forward="false" selection-start-line="2294" selection-start-column="0" selection-end-line="2294" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -873,11 +888,12 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/application.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="75">
-          <caret line="3" column="21" lean-forward="true" selection-start-line="3" selection-start-column="21" selection-end-line="3" selection-end-column="21" />
+        <state relative-caret-position="255">
+          <caret line="264" column="28" lean-forward="true" selection-start-line="264" selection-start-column="28" selection-end-line="264" selection-end-column="28" />
           <folding>
             <element signature="e#0#41#0" expanded="true" />
-            <element signature="e#1244#1245#0" expanded="false" />
+            <element signature="e#249#319#0" expanded="false" />
+            <element signature="e#335#511#0" expanded="false" />
           </folding>
         </state>
       </provider>
