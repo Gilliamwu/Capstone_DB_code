@@ -116,28 +116,10 @@ def update_video_processed_frame_info_processed_frames( video_id, processed_n):
     catch_row.total_frames = processed_n
     db.session.commit()
 
-
-# for darknet
-def unpack_to_dict(tup):
-    label, p, rect = tup
-    x, y, w, h = rect
-    return {'x': x, 'y': y, 'w': w, 'h': h, 'p': p}
-
-# pickle file
-def generate_result_folder_for_pickle(video_id):
-    dst = result_saving_directory + "\\" + str(video_id)
-    if not os.path.exists(dst):
-        os.mkdir(dst)
-    return dst
-
-def pickle_save_to_file(file_f, file_name, data, file_ext='.pkl'):
-    file = file_f+"\\"+file_name+file_ext
-    with open(file,'wb') as f:
-        pickle.dump(data, f)
-    return True
-
-def pickle_read_file(file_f, file_name, file_ext='.pkl'):
-    file = file_f + "\\" + file_name + file_ext
-    with open(file,'rb') as f:
-        data = pickle.load(f)
-    return data
+def db_check_if_vid_exist(vid_name):
+    if vid_name.isdigit():
+        total_v_len = table_total_count(video_file_id_mapping)
+        if int(vid_name) > 0 and int(vid_name) <= total_v_len:
+            return True, int(vid_name)
+        return False, "vid should be in range 0 to {}".format(total_v_len)
+    return False, "currently vid should consists only of numbers"

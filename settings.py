@@ -19,3 +19,8 @@ MYSQL_SETTINGS = {
     "user": "root",
     "passwd": "123456"
 }
+
+MYSQL_connection_setting = {
+    "port" : 3306,
+    "database" : "capstone"
+}

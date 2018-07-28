@@ -31,7 +31,6 @@ class crack_detection_result(db.Model):
     __tablename__ = 'crack_detection_result'
     __table_args__ = (
         db.PrimaryKeyConstraint('video_id', 'frame_id'),
-        {}
     )
     video_id = db.Column(db.Integer, db.ForeignKey("video_file_id_mapping.video_id"), nullable=False) # db.ForeignKey("video_file_id_mapping.video_id"),
     frame_id = db.Column(db.Integer)
@@ -46,7 +45,9 @@ class crack_detection_result(db.Model):
         self.detect_flag = detect_flag
         self.result_loc = result_loc
     def __repr__(self):
-        return '<video frame for {}, frame loc {}>'.format(self.video_id, self.frame_loc)
+        return "<crack_detection_result(video_id='%s', frame_id='%s', insert_time='%s'," \
+               " frame_loc='%s', detect_flag='%s', result_loc='%s' )>"\
+                %(self.video_id, self.frame_id, self.insert_time, self.frame_loc, self.detect_flag, self.result_loc)
 
 class video_processed_frame_info(db.Model):
     __tablename__ = "video_processed_frame_info"
