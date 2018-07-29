@@ -76,7 +76,8 @@ def main():
     images_details = multiprocessing.Queue()
     print("S")
 
-    server_fetcher = DB_fetcher(images_details, MYSQL_SETTINGS,start_time = datetime.datetime(2018,7,27,10,0,54))
+    current_date = datetime.datetime.now()
+    server_fetcher = DB_fetcher(images_details, MYSQL_SETTINGS,start_time = current_date)
     print("SS")
     img_server = Image_processor(images_details, db_conn)
 
