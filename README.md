@@ -83,10 +83,18 @@ The project requires:
 reset master;
 ```
 
-### Machine learning is based on this model
+* Machine learning is based on this model
 "You Only Look Once: Unified, Real-Time Object Detection (versions 2 & 3)" (YOLO)
 https://github.com/AlexeyAB/darknet
 
 ### other links:
-Self labelled crack dataset: [TODO]
-Yolo training repository: [TODO]
+Self labelled crack dataset: 
+Yolo self-training repository: 
+
+### Reference
+Machine learning:
+YOLO
+Crack-forest: https://github.com/cuilimeng/CrackForest-dataset
+Crack_Detection_Database https://www.irit.fr/~Sylvie.Chambon/Crack_Detection_Database.html
+
+
