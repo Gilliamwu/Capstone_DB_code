@@ -1,8 +1,8 @@
 # Capstone_DB_code
-This repository contains the
+This repository is for Singapore University of Technology and Design Batch of 2018, team S05- Performance Rotors - AEOLUS
 
 ## Prerequisite:
-### Ubuntu environment
+### Linux supported only
 
 ### MySQL Server
 Currently used: 5.6
@@ -21,20 +21,33 @@ Then when you check mysql status from server by
 ```
 mysql>  select variable_value as "BINARY LOGGING STATUS (log_bin) :: " 
     from information_schema.global_variables where variable_name='log_bin';
++-------------------------------------+
+| BINARY LOGGING STATUS (log_bin) ::  |
++-------------------------------------+
+| ON                                  |
++-------------------------------------+
 ```
 and 
 ```
 mysql> select variable_value as "BINARY LOG FORMAT (binlog_format) :: " 
     from information_schema.global_variables where variable_name='binlog_format';
-```
-You can see
-```
-BINARY LOGGING STATUS (log_bin) :: ON
-BINARY LOG FORMAT (binlog_format) :: ROW # Very important because we want to see the update events of specific table
++---------------------------------------+
+| BINARY LOG FORMAT (binlog_format) ::  |
++---------------------------------------+
+| ROW                                   | # Very important because we want to see the update events of specific table
++---------------------------------------+
 ```
 To know more about the binlog status, you could use following commands in server to know more 
 ```
 mysql> show binary logs;
++------------+-----------+
+| Log_name   | File_size |
++------------+-----------+
+| bin.000001 |       144 |
+| bin.000002 |       239 |
+| bin.000003 |       319 |
+| bin.000004 |       107 |
++------------+-----------+
 ```
 
 
@@ -56,7 +69,7 @@ The project requires:
 * CUDA >= 7.5
 
 ## How to run
-1. Set up the aeolus fron end windows app
+1. Set up the aeolus from end windows app
 2. From this repository, edit settings.py, edit the location you want to put all the video received from front end; 
   file folder to save the sliced frames from video;
   the output from Machine Learning result;
@@ -73,3 +86,7 @@ reset master;
 ### Machine learning is based on this model
 "You Only Look Once: Unified, Real-Time Object Detection (versions 2 & 3)" (YOLO)
 https://github.com/AlexeyAB/darknet
+
+### other links:
+Self labelled crack dataset: [TODO]
+Yolo training repository: [TODO]
