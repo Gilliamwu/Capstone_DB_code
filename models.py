@@ -34,7 +34,7 @@ class crack_detection_result(db.Model):
     )
     video_id = db.Column(db.Integer, db.ForeignKey("video_file_id_mapping.video_id"), nullable=False) # db.ForeignKey("video_file_id_mapping.video_id"),
     frame_id = db.Column(db.Integer)
-    insert_time = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+    insert_time = db.Column(db.DateTime, default=datetime.datetime.utcnow())
     frame_loc = db.Column(db.String(80), unique=True)
     detect_flag = db.Column(db.Boolean, nullable=True)
     result_loc = db.Column(db.String(80), unique=True, nullable=True)

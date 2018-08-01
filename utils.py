@@ -10,11 +10,11 @@ logging.basicConfig(level=logging.DEBUG, format='%(relativeCreated)6d %(threadNa
 
 # video save and frame extraction
 def save_video_to_specific_loc(video_saving_directory, video_file, video_name, video_extension=".avi"):
-    with open(video_saving_directory+"\\"+video_name + video_extension,'w') as file:
+    with open(video_saving_directory+"/"+video_name + video_extension,'w') as file:
         file.write(video_file)
 
 def generate_result_folder_for_frames(video_id):
-    dst = frame_extract_directory + "\\" + str(video_id)
+    dst = frame_extract_directory + "/" + str(video_id)
     if not os.path.exists(dst):
         os.mkdir(dst)
     return dst
@@ -26,10 +26,10 @@ def split_video_to_frames(result_folder, inpuy_video_f, video_name, video_extens
     :param input_video:
     :return: frame list, total number of frames
     """
-    logging.info(" >> reading {}".format(inpuy_video_f+"\\"+video_name + video_extension))
-    v = video(inpuy_video_f+"\\"+video_name + video_extension)
+    logging.info(" >> reading {}".format(inpuy_video_f+"/"+video_name + video_extension))
+    v = video(inpuy_video_f+"/"+video_name + video_extension)
     v.video_to_frames(result_folder)
-    return v.get_frame_list(), v.video_length
+    return v.get_frame_list(), v.actual_fram_lens
 
 
 
@@ -72,9 +72,10 @@ def video_plain_framelist_to_db(video_id, frames_list):
     :return:
     """
     result = []
+    print(" >>>> frame length {} \b it's length is {}".format(frames_list, len(frames_list)))
     for i in range(len(frames_list)):
         result.append(crack_detection_result(
-            video_id=video_id, frame_id=i, frame_loc=frames_list[i],detect_flag=False))
+            video_id=video_id, frame_id=i+1, frame_loc=frames_list[i],detect_flag=False))
     db.session.bulk_save_objects(result)
     db.session.commit()
     logging.info("  finished save frame list to db.check?")
@@ -117,9 +118,21 @@ def update_video_processed_frame_info_processed_frames( video_id, processed_n):
     db.session.commit()
 
 def db_check_if_vid_exist(vid_name):
+    vid_name = vid_name.strip()
     if vid_name.isdigit():
         total_v_len = table_total_count(video_file_id_mapping)
         if int(vid_name) > 0 and int(vid_name) <= total_v_len:
             return True, int(vid_name)
         return False, "vid should be in range 0 to {}".format(total_v_len)
+    print(" >>>>>>>>>>>>>the vid received is {}".format(vid_name))
     return False, "currently vid should consists only of numbers"
+
+def db_check_if_frame_id_exist(vid_name, frame_index):
+    # known the vid is valid.
+    if isinstance(frame_index, int):
+        current_total = db.session.query(video_processed_frame_info).filter(video_processed_frame_info.video_id == vid_name).first().total_frames
+
+        #current_total = crack_detection_result.query.filter_by(video_id = vid_name).count()
+        if frame_index <= current_total and frame_index > 0:
+            return True, frame_index
+    return False, current_total

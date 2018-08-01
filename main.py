@@ -30,9 +30,8 @@ class Image_processor(multiprocessing.Process):
 
     def run(self):
         while True:
-            print(" wth every run into this loop? now the queue is it empty? {} size{}"
-                  .format(self.share_image_queue.empty(),self.share_image_queue.qsize()))
-            print(self.share_image_queue)
+            # print(" wth every run into this loop? now the queue is it empty? {} size{}"
+            #       .format(self.share_image_queue.empty(),self.share_image_queue.qsize()))
             while not self.share_image_queue.empty():
                 i = self.share_image_queue.get()
                 logging.info("<<< obtaining 1 image from queue {}".format(i["frame_loc"]))
@@ -54,7 +53,7 @@ class Image_processor(multiprocessing.Process):
                     # output = [(b'crack',0.732,(218,395,347,41)),(b'crack',0.43,(18,55,67,441))]
 
                     # save output to a pickle and save to db
-                    result_loc = result_saving_directory+"\\"+str(video_id)
+                    result_loc = result_saving_directory+"/"+str(video_id)
                     result_pic_loc = pickle_save_to_file(result_loc, frame_name.split(".")[0], output,)
 
                     # update crack_detection_result and change flag
@@ -74,10 +73,17 @@ def main():
     # init the common queue
     logging.info("CPU count {}".format(multiprocessing.cpu_count()))
     images_details = multiprocessing.Queue()
-    print("S")
+    print("database fetching...")
 
-    server_fetcher = DB_fetcher(images_details, MYSQL_SETTINGS,start_time = datetime.datetime(2018,7,27,10,0,54))
-    print("SS")
+    # due to the difference of DB time and our system time, we need to delete 25 hours from current date
+    # so threshold time is current time + one hour
+
+    current = datetime.datetime.now()
+    # we should use our time because when passed in, it will be converted to utc time
+    # current = datetime.datetime(2018,7,30, 10, 3 ,0) #- datetime.timedelta(minutes=30)
+
+    server_fetcher = DB_fetcher(images_details, MYSQL_SETTINGS, start_time = current)
+    print("image processing ready...")
     img_server = Image_processor(images_details, db_conn)
 
     processes = [server_fetcher,img_server ]

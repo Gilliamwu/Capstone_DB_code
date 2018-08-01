@@ -50,14 +50,14 @@ class video:
                 # Release the feed
                 self.cap.release()
                 # Print stats
-                print("Done extracting frames.\n%d total number of frames extracted" % (count+1))
-                print("count {}, video_length {}".format(count, self.video_length))
+                print("Done extracting frames.\n%d total number of frames extracted" % (count))
+                print("count of actual frames {}, video_length from header: {}".format(count, self.video_length))
                 print("It took %d seconds forconversion." % (time_end - time_start))
-                self.actual_fram_lens = count+1
+                self.actual_fram_lens = count
                 break
 
-            cv2.imwrite(output_loc + "\\%#05d." % (count) + output_format, frame)
-            self.frame_list.append(output_loc + "\\%#05d." % (count) + output_format)
+            cv2.imwrite(output_loc + "/%#05d." % (count) + output_format, frame)
+            self.frame_list.append(output_loc + "/%#05d." % (count) + output_format)
 
     def get_frame_list(self):
         return self.frame_list

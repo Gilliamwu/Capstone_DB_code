@@ -15,18 +15,18 @@ from pymysqlreplication.row_event import (
 )
 
 def convert_to_second_int(datetimein):
-    return time.mktime(datetimein.timetuple()) #(datetimein-datetime.datetime(1970,1,1)).total_seconds()
+    return int(time.mktime(datetimein.timetuple())) #(datetimein-datetime.datetime(1970,1,1)).total_seconds()
 
 class DB_fetcher(multiprocessing.Process):
     def __init__(self, share_image_queue, MYSQL_SETTINGS ,target_schema = "capstone",
-                 target_table = "crack_detection_result", last_read_id = 0,
+                 target_table = "crack_detection_result",
                  start_time = datetime.datetime(1970,1,2,0,1,0)): # 1970,1,1 is almost 0 second
         multiprocessing.Process.__init__(self)
         self.share_image_queue = share_image_queue
         self.target_schema = target_schema
         self.target_table = target_table
-        self.last_read_id = last_read_id
         self.skip_to_timestamp = convert_to_second_int(start_time)
+        print(" >>>>> start time is {}".format(self.skip_to_timestamp))
 
     def run(self):
         while True:
@@ -44,36 +44,49 @@ class DB_fetcher(multiprocessing.Process):
                 if prefix == self.target_schema + ":" + self.target_table + ":":
                     # print(binlogevent.rows)
                     for new_update_row in binlogevent.rows:
-                        logging.info(" >>> find new row {}".format(new_update_row))
+                        logging.info(" >>> find new row {} time: {}".format(new_update_row, binlogevent.timestamp))
                         # format for a row: {'values':
                         #       {'video_id': 1, 'frame_id': 4, 'insert_time': datetime.datetime(2008, 6, 19, 0, 0),
                         #       'frame_loc': 'RANDOM_LL', 'detect_flag': boolean, 'result_loc': None}}
+
+                        # if new_update_row["values"]["detect_flag"] == 0 and  \
+                        #         (new_update_row["values"]['insert_time'] is not None or new_update_row["values"]['insert_time'] != '' )\
+                        #         and  ((new_update_row["values"]['frame_id'] > 170 and new_update_row["values"]['frame_id' ] < 200)
+                        #               or (new_update_row["values"]['frame_id'] > 1010 and new_update_row["values"]['frame_id' ] < 1035)
+                        #               or (new_update_row["values"]['frame_id'] > 1155 and new_update_row["values"]['frame_id' ] < 1177)
+                        #               or (new_update_row["values"]['frame_id'] > 1312 and new_update_row["values"]['frame_id' ] < 1316)
+                        #               or (new_update_row["values"]['frame_id'] > 2127 and new_update_row["values"]['frame_id' ] < 2150)):
+
                         if new_update_row["values"]["detect_flag"] == 0 and  \
-                                (new_update_row["values"]['insert_time'] is not None or new_update_row["values"]['insert_time'] != '' ):
-                            # TODO: maybe edit here
+                                (new_update_row["values"]['insert_time'] is not None or new_update_row["values"]['insert_time'] != ''
+                                 ):
                             #logging.info(" >>> for this row, the flag is {}".format(new_update_row['detect_flag']))
                             try:
                                 self.share_image_queue.put(new_update_row["values"],True,1)
                                 logging.info(" >>> adding 1 image to queue {}".format(new_update_row))
                             except Exception as e:
                                 logging.error(e)
-            self.skip_to_timestamp = convert_to_second_int(datetime.datetime.now())
+                            self.skip_to_timestamp = convert_to_second_int(datetime.datetime.now())
+
             time.sleep(2)
 
     def close_stream(self):
         self.stream.close()
 
 
-# def main(target_schema = "capstone", target_table = "new_table", last_read_id = 0):
+# def main(target_schema = "capstone", target_table = "crack_detection_result", last_read_id = 0):
 #     """
 #     details of binLogStreamRead: https://github.com/noplay/python-mysql-replication/blob/master/pymysqlreplication/binlogstream.py
 #     :return:
 #     """
+#     current = datetime.datetime(2018,7,29, 13, 10,0)
+#     print(" 7, 29 13.10 convert_current_time_to{}".format(convert_to_second_int(current)))
 #     stream = BinLogStreamReader(
 #             connection_settings=MYSQL_SETTINGS,
 #             only_events= [WriteRowsEvent], #[DeleteRowsEvent, WriteRowsEvent, UpdateRowsEvent],
 #             server_id = 3,
-#             slave_heartbeat = 1)
+#             slave_heartbeat = 1,
+#             skip_to_timestamp = convert_to_second_int(current))
 #
 #     print(stream)
 #     print(">>>>>>>>>> getting update")
@@ -88,13 +101,13 @@ class DB_fetcher(multiprocessing.Process):
 #                 # format: {'values':
 #                 #       {'map_id': 1, 'timestamp': datetime.datetime(2008, 6, 19, 0, 0),
 #                 #       'image_location': 'RANDOM_LL', 'crack_detect': None, 'result_locatoin': None}}
-#                 if vals["values"]["crack_detect"] is None:
+#                 if vals["values"]["detect_flag"] is None:
 #                     # settings.image_processing_queue.put(vals["values"])
-#                     print(" >>> adding 1 image to queue")
+#                     print(" >>> adding 1 image to queue: {}".format(vals["values"]))
 #                 last_read_id += 1
 #         time.sleep(1)
 #     stream.close()
-
+#
 
 #
 # class DB_fetcher( base.PyMySQLReplicationTestCase ):
@@ -141,9 +154,10 @@ class DB_fetcher(multiprocessing.Process):
     # def close_stream(self):
     #     self.stream.close()
 
-if __name__ == "__main__":
-    images_details = multiprocessing.Queue()
-    server_fetcher = DB_fetcher(images_details, MYSQL_SETTINGS)
-    server_fetcher.start()
+# if __name__ == "__main__":
+#     main()
+    # images_details = multiprocessing.Queue()
+    # server_fetcher = DB_fetcher(images_details, MYSQL_SETTINGS)
+    # server_fetcher.start()
 
 

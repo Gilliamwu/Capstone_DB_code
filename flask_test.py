@@ -184,7 +184,7 @@ def test_video():
         update_video_file_id_mapping(video_loc, video_id)
         db.session.commit()
         logging.info("  >>> given video saved to db: {}".format(video))
-        video = "F:\\capstone\\data\\videos\\input\\File_002.mov"
+        video = "F:/capstone/data/videos/input/File_002.mov"
 
 
         #extract frames
@@ -193,7 +193,7 @@ def test_video():
         frame_extract_location_current_pickle = generate_result_folder_for_pickle(video_id)
 
         frame_list, frame_length = split_video_to_frames(frame_extract_location_current_video,
-                                                         "F:\\capstone\\data\\videos\\input","File_002",".mov")
+                                                         "F:/capstone/data/videos/input","File_002",".mov")
         print("  >>> frames extracted.")
         # save frames to db
         video_plain_framelist_to_db(video_id, frame_list)

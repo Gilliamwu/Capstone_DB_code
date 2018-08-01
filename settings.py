@@ -1,7 +1,9 @@
 import os
-video_saving_directory = "F:\\capstone\\data\\videos\\output\\dumped_video"
-frame_extract_directory = "F:\\capstone\\data\\videos\\extacted_frames"
-result_saving_directory = "F:\\capstone\\data\\videos\\darknet_output"
+video_saving_directory = "F:/capstone/data/videos/dumped_video"
+frame_extract_directory = "F:/capstone/data/videos/extacted_frames"
+result_saving_directory = "F:/capstone/data/videos/darknet_output"
+weight_file_directory = "backup/yolo-obj_3000.weights"
+ubuntu = False
 
 if not os.path.exists(video_saving_directory):
     os.mkdir(video_saving_directory)
