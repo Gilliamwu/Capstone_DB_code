@@ -82,7 +82,8 @@ The project requires:
   file folder to save the sliced frames from video;
   the output from Machine Learning result;
   the MySQL connection details
-3. run main.py to start the backend machine learning processor, which will connect to MySQL databased and find all the newly added roles from the time you start server
+3. Run ```make``` in terminal to compile the source code for darknet.
+4. run main.py to start the backend machine learning processor, which will connect to MySQL databased and find all the newly added roles from the time you start server
 4. run application.py to set up the flask server.
 
 ## Special notes
