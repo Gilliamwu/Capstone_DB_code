@@ -50,6 +50,14 @@ mysql> show binary logs;
 +------------+-----------+
 ```
 
+Also, for the main server, make sure the main server id is 1. You can check server id by trying:
+```
+select @@server_id;
+```
+If it is not, you can change .cnf or .ini file, find the line with server-id and change to this:
+```
+server-id	= 1
+```
 
 ### Python: currently used 3.6. Not supportive for python 3.2
 packages required listed in requirements.txt:
